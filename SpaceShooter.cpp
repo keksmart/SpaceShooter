@@ -1,66 +1,68 @@
-#include "SDL.h"
-#include "SDL_image.h"
-#include <iostream>
+//implementation
+#include "SpaceShooter.h"
 using namespace std;
 
-class Game{		
-	private:
-		bool is_running = false;
-		int speed=3; // unit: pixel
-		SDL_Window *window;
-		SDL_Renderer *renderer;
-		SDL_Texture *spaceship; //our picture will store in this object	
-		SDL_Texture *red_dot; 
-		SDL_Rect destination1, destination2; //SDL_Rect create a rectangular 
-		
-	public:
-		Game(){
-		if (SDL_Init(SDL_INIT_EVERYTHING) == 0){
-			window = SDL_CreateWindow("SpaceShooter", 200,200, 900,650, false);
-			cout << "Window is " << window << endl;
-			if (window){ //this is gonna run if window created successfully
+Game::Game(){
+		if (SDL_Init(SDL_INIT_EVERYTHING) == 0){ //Initialization is required
+			window = SDL_CreateWindow("SpaceShooter", 100,100, 900,650, false);
+			if (window ){ //this is gonna run if window created successfully
 					cout << "Window created."<<endl;
 				}
-			renderer = SDL_CreateRenderer(window, -1, 0);
+			renderer = SDL_CreateRenderer(window, -1, 0); 
 			if (renderer){ //same for renderer
 				cout << "Renderer created." << endl;
 			}
-			SDL_SetRenderDrawColor(renderer, 204, 255, 255, 255); //set our colors and alpha
-			is_running = true;
+			is_running = true; //if everything intialized successfully, we make this become true
+							   //to let our program keep on running
 			}
 		else{
-			is_running = false;
+			is_running = false; //rare case, if not, set it to false and program will not keep on running
 		}
-		spaceship = IMG_LoadTexture(renderer, "images/spaceship.png");
-		red_dot = IMG_LoadTexture(renderer, "images/red_dot.png");
-		//spaceship's size and location 
-		destination1.h = 100;//height
-		destination1.w = 100;//width
-		destination1.x = 300; // x location
-		destination1.y = 500;// y location
-		//red_dot's size and location
-		destination2.h = 50;//height
-		destination2.w = 50;//width
-		destination2.x = 600; // x location
-		destination2.y = 520;// y location
+		loadImages_setInfos(); //load all our images and set their attributes
 		
 	}
-		void handle_event(){ //handle any input of user, and respond
-			SDL_Event event; //detect what you do to your computer
-							 //example: moving your mouse, pressing a button on your keyboard
-			if (SDL_PollEvent(&event)){
-				
-			}
-			switch(event.type){
+	
+void Game::loadImages_setInfos(){
+	
+	spaceship = IMG_LoadTexture(renderer, "images/spaceship.png");
+	space = IMG_LoadTexture(renderer, "images/space.jpg");
+	planet = IMG_LoadTexture(renderer, "images/planet.png" );
+	planet_big = IMG_LoadTexture(renderer, "images/planet.png" );
+	laser1 = IMG_LoadTexture(renderer, "images/redline.png" );
+	laser2 = IMG_LoadTexture(renderer, "images/redline.png" );
+	laser3 = IMG_LoadTexture(renderer, "images/redline.png" );
+	setDes(ship_des, 900/2 - 50, 500, 64, 64);
+	setDes(space_des, 0, 0, 900, 650);
+	setDes(planet_des, 100, 50, 50, 50);
+	setDes(big_des, 600, 200, 100, 100);
+	setDes(laser_des1, 0, 0, 0, 0); // LOGIC: set w and h to 0 first,
+	setDes(laser_des2, 0, 0, 0, 0); // so it appears nothing initially,
+	setDes(laser_des3, 0, 0, 0, 0); // when someone pressed spacebar, assign a w and h
+	
+}
+
+void Game::setDes(SDL_Rect &rect, int hori, int vert, int width, int height){
+			rect.x = hori;
+			rect.y = vert;
+			rect.w = width;
+			rect.h = height;
+		}
+		
+void Game::handle_event(){
+	
+	SDL_Event event; //detect what you do to your computer
+					 //example: moving your mouse, pressing a button on your keyboard
+	while(SDL_PollEvent(&event)){ //when an event is detected
+			switch(event.type){ //more in-depth detection
 				case SDL_QUIT: //SDL_QUIT means someone click the "X" on top
 					is_running = false;
 					cout << "Quitting program..." << endl;
 					break;
 				case SDL_KEYDOWN: // When someone clicked his keyboard's button
 					if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT){
-						if (destination1.x <= 800){
-							destination1.x += speed;
-							cout << "X location is now at: " << destination1.x << endl;
+						if (ship_des.x <= 800){
+							ship_des.x += speed;
+							cout << "X location is now at: " << ship_des.x << endl;
 						}
 						else{
 							cout << "You are running out of the window at right!" << endl;
@@ -68,9 +70,9 @@ class Game{
 						//move the spaceship to the right
 					}
 					if (event.key.keysym.scancode == SDL_SCANCODE_LEFT){
-						if (destination1.x >= 0){
-							destination1.x -= speed;
-							cout << "X location is now at: " << destination1.x << endl;
+						if (ship_des.x >= 0){
+							ship_des.x -= speed;
+							cout << "X location is now at: " << ship_des.x << endl;
 						}
 						else{
 							cout << "You are running out of the window at left!" << endl;
@@ -78,54 +80,108 @@ class Game{
 						//move the spaceship to the right
 					}
 					
-					if (destination1.x >= 500){ 
-						speed = 10;
-						cout << "The speed boosted!";
+					if (event.key.keysym.scancode == SDL_SCANCODE_SPACE){
+						//shoot
+						cout << laser_count << endl;
+						if (laser_count <3){
+							cout << "This happened 2!" << endl;
+							if (laser_count == 0){
+								setDes(laser_des1, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
+								laser_count +=1;
+							}
+							else if (laser_count == 1 && laser_des1.y <= ship_des.y-50){
+								setDes(laser_des2, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
+								laser_count +=1;
+							}
+							else if (laser_count == 2 && laser_des2.y <= ship_des.y-50){
+								setDes(laser_des3, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
+								laser_count +=1;
+							}
 					}
+						else{
+							cout << "This happened!" << endl;
+							if(laser_des1.y <= -20 && laser_des3.y <= ship_des.y-50){
+								laser_count -= 0;
+								setDes(laser_des1, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
+							}
+							if(laser_des2.y <= -20 && laser_des1.y <= ship_des.y-50){
+								laser_count -= 1;
+								setDes(laser_des2, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
+							}
+							if(laser_des3.y <= -20 && laser_des2.y <= ship_des.y-50){
+								laser_count -= 2;
+								setDes(laser_des3, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
+							}
+							
+						}
+							
+						}
+					
+					 
 					break;
 				case SDL_KEYUP: //When someone done clicking and leave the button
 					cout << "Someone left his hand off the keyboard"<< endl;
 					break;
+				
 				default:
 					break;
+				}
 			}
+		
+	}
+
+
+
+void Game::update(){ //update things on the screen
+			//let the planet move vertically every single second
+			planet_des.y += 1;
+			big_des.y += 1;
+			Sleep(10);
+			if (planet_des.y == 650){
+				planet_des.y = -50; //reset
+			}
+			if (big_des.y == 650){
+				big_des.y = -100; //reset
+			}
+			
+			//update my lasers if there is a spacebar event
 		}
 		
-		void update(){ //update things on the screen
-		
-		}
-		void render(){ //painter function
-			SDL_RenderClear(renderer); //to draw on a new paper
-			SDL_RenderCopy(renderer, red_dot, NULL, &destination2); //for red_dot
-			SDL_RenderCopy(renderer, spaceship, NULL, &destination1); //This is to display an image 
+void Game::render(){ //painter function
+
+			/* Important Note: Render has a 
+			   hierarchy structure Whatever 
+			   comes first will render at the bottom */
+			   
+			SDL_RenderClear(renderer);
+			SDL_RenderCopy(renderer, space, NULL, &space_des); //paint my picture!
+			SDL_RenderCopy(renderer, planet, NULL, &planet_des);
+			SDL_RenderCopy(renderer, planet_big, NULL, &big_des);
+			if (laser_count >= 1){
+				
+				SDL_RenderCopy(renderer, laser1, NULL, &laser_des1);
+				SDL_RenderCopy(renderer, laser2, NULL, &laser_des2);
+				SDL_RenderCopy(renderer, laser3, NULL, &laser_des3);
+				laser_des1.y -= 3;	
+				laser_des2.y -= 3;	
+				laser_des3.y -= 3;	
+			}
+			SDL_RenderCopy(renderer, spaceship, NULL, &ship_des); //to draw on a new paper //This is to display an image 
 			SDL_RenderPresent(renderer); //start painting!
 		} 
-		
-		bool is_it_running(){
+
+bool Game:: is_it_running(){
 			return is_running;
 		}
-		void clean(){ //DrAzeem mentioned before, dynamic memory allocation
-					  //To prevent Memory Leak
-			SDL_DestroyWindow(window);
-			SDL_DestroyRenderer(renderer);
-			SDL_Quit();
-			
-		}
-		
-		virtual ~Game(){
-			cout << "Class Game has reached the end of its lifetime --- destructing..." << endl;
-		}
-};
-
-int main(int argc, char *argv[]){ //command line arguments
-		Game game;
-		while (game.is_it_running()==true){
-			game.render();
-			game.update();
-			game.handle_event();
-			//run as long as is_running is true
-		}
-		game.clean();
-		cout << "This happened!";
-		
+void Game::clean(){ //DrAzeem mentioned before, dynamic memory allocation
+			  //To prevent Memory Leak
+	SDL_DestroyWindow(window);
+	SDL_DestroyRenderer(renderer);
+	SDL_Quit();
+	
 }
+
+Game::~Game(){
+			cout << "Class Game has reached the end of its lifetime --- destructing..." << endl;
+}
+
