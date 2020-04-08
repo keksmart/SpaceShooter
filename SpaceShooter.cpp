@@ -52,74 +52,37 @@ void Game::handle_event(){
 	
 	SDL_Event event; //detect what you do to your computer
 					 //example: moving your mouse, pressing a button on your keyboard
-	while(SDL_PollEvent(&event)){ //when an event is detected
+	while(SDL_PollEvent(&event) != 0){ //when an event is detected, no matter what kind of event
+	
 			switch(event.type){ //more in-depth detection
-				case SDL_QUIT: //SDL_QUIT means someone click the "X" on top
+			
+				case SDL_QUIT: //SDL_QUIT means someone click the "X" on top-right
 					is_running = false;
 					cout << "Quitting program..." << endl;
+					SDL_Quit();
 					break;
-				case SDL_KEYDOWN: // When someone clicked his keyboard's button
+				case SDL_KEYDOWN: // When someone clicked the keyboard's button
+				
 					if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT){
-						if (ship_des.x <= 800){
-							ship_des.x += speed;
-							cout << "X location is now at: " << ship_des.x << endl;
-						}
-						else{
-							cout << "You are running out of the window at right!" << endl;
-						}
-						//move the spaceship to the right
+						motion_detect[MOVE_RIGHT] = true;
 					}
 					if (event.key.keysym.scancode == SDL_SCANCODE_LEFT){
-						if (ship_des.x >= 0){
-							ship_des.x -= speed;
-							cout << "X location is now at: " << ship_des.x << endl;
-						}
-						else{
-							cout << "You are running out of the window at left!" << endl;
-						}
-						//move the spaceship to the right
+						motion_detect[MOVE_LEFT] = true;
 					}
-					
 					if (event.key.keysym.scancode == SDL_SCANCODE_SPACE){
-						//shoot
-						cout << laser_count << endl;
-						if (laser_count <3){
-							cout << "This happened 2!" << endl;
-							if (laser_count == 0){
-								setDes(laser_des1, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
-								laser_count +=1;
-							}
-							else if (laser_count == 1 && laser_des1.y <= ship_des.y-50){
-								setDes(laser_des2, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
-								laser_count +=1;
-							}
-							else if (laser_count == 2 && laser_des2.y <= ship_des.y-50){
-								setDes(laser_des3, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
-								laser_count +=1;
-							}
-					}
-						else{
-							cout << "This happened!" << endl;
-							if(laser_des1.y <= -20 && laser_des3.y <= ship_des.y-50){
-								laser_count -= 0;
-								setDes(laser_des1, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
-							}
-							if(laser_des2.y <= -20 && laser_des1.y <= ship_des.y-50){
-								laser_count -= 1;
-								setDes(laser_des2, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
-							}
-							if(laser_des3.y <= -20 && laser_des2.y <= ship_des.y-50){
-								laser_count -= 2;
-								setDes(laser_des3, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
-							}
-							
-						}
-							
-						}
-					
-					 
+						motion_detect[SHOOT] = true;
 					break;
+					
 				case SDL_KEYUP: //When someone done clicking and leave the button
+					if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT){
+						motion_detect[MOVE_RIGHT] = false;
+					}
+					if (event.key.keysym.scancode == SDL_SCANCODE_LEFT){
+						motion_detect[MOVE_LEFT] = false;
+					}
+					if (event.key.keysym.scancode == SDL_SCANCODE_SPACE){
+						motion_detect[SHOOT] = false;
+					}
 					cout << "Someone left his hand off the keyboard"<< endl;
 					break;
 				
@@ -129,11 +92,10 @@ void Game::handle_event(){
 			}
 		
 	}
-
-
+}
 
 void Game::update(){ //update things on the screen
-			//let the planet move vertically every single second
+			//planets keep moving at background
 			planet_des.y += 1;
 			big_des.y += 1;
 			Sleep(10);
@@ -144,7 +106,61 @@ void Game::update(){ //update things on the screen
 				big_des.y = -100; //reset
 			}
 			
-			//update my lasers if there is a spacebar event
+			if (motion_detect[MOVE_RIGHT]==true){
+				if (ship_des.x <= 800){ //to limit someone move out of scope
+					ship_des.x += speed;
+					cout << "X location is now at: " << ship_des.x << endl;
+				}
+				else{
+					cout << "You are running out of the window at right!" << endl;
+				}
+						//move the spaceship to the right
+			}
+			if (motion_detect[MOVE_LEFT]==true){
+				if (ship_des.x >= 0){ //to limit someone move out of scope
+					ship_des.x -= speed;
+					cout << "X location is now at: " << ship_des.x << endl;
+				}
+				else{
+					cout << "You are running out of the window at left!" << endl;
+				}
+				//move the spaceship to the left
+			}
+			if (motion_detect[SHOOT]==true){ 
+					//Limit 3 lasers only
+					//shoot
+				cout << laser_count << endl;
+				if (laser_count <3){
+					if (laser_count == 0){
+						setDes(laser_des1, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
+						laser_count +=1;
+					}
+					else if (laser_count == 1 && laser_des1.y <= ship_des.y-50){
+						setDes(laser_des2, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
+						laser_count +=1;
+					}
+					else if (laser_count == 2 && laser_des2.y <= ship_des.y-50){
+						setDes(laser_des3, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
+						laser_count +=1;
+						}
+					}
+				else{
+					if(laser_des1.y <= -20 && laser_des3.y <= ship_des.y-50){
+						laser_count -= 0;
+						setDes(laser_des1, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
+					}
+					if(laser_des2.y <= -20 && laser_des1.y <= ship_des.y-50){
+						laser_count -= 1;
+						setDes(laser_des2, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
+					}
+					if(laser_des3.y <= -20 && laser_des2.y <= ship_des.y-50){
+						laser_count -= 2;
+						setDes(laser_des3, ship_des.x + 64/2 - 10/2, ship_des.y, 10, 20);
+						}
+					
+					}
+							
+				}
 		}
 		
 void Game::render(){ //painter function
@@ -184,4 +200,3 @@ void Game::clean(){ //DrAzeem mentioned before, dynamic memory allocation
 Game::~Game(){
 			cout << "Class Game has reached the end of its lifetime --- destructing..." << endl;
 }
-
