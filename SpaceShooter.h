@@ -10,6 +10,13 @@ using namespace std;
 
 class Game{
 	private:
+		enum motion{
+			MOVE_RIGHT=0,
+			MOVE_LEFT=1,
+			SHOOT=2
+		};
+		
+		bool motion_detect[3] = {false,false,false};
 		bool is_running = false;
 		bool shoot_laser = false;
 		int speed=5, laser_speed = 10, laser_count = 0; 
