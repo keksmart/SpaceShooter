@@ -25,20 +25,22 @@ Game::Game(){
 void Game::loadImages_setInfos(){
 	
 	spaceship = IMG_LoadTexture(renderer, "images/spaceship.png");
-	space = IMG_LoadTexture(renderer, "images/space.jpg");
+	space = IMG_LoadTexture(renderer, "images/BG Color only.png");
+	white_stars = IMG_LoadTexture(renderer, "images/Stars Transparent.png");
 	planet = IMG_LoadTexture(renderer, "images/planet.png" );
 	planet_big = IMG_LoadTexture(renderer, "images/planet.png" );
 	laser1 = IMG_LoadTexture(renderer, "images/redline.png" );
 	laser2 = IMG_LoadTexture(renderer, "images/redline.png" );
 	laser3 = IMG_LoadTexture(renderer, "images/redline.png" );
-	setDes(ship_des, 900/2 - 50, 500, 64, 64);
+	alien = IMG_LoadTexture(renderer, "images/alien.png");
+	setDes(ship_des, 900/2 - 50, 580, 64, 64);
 	setDes(space_des, 0, 0, 900, 650);
+	setDes(star_des, 0, -650, 900, 1300);
 	setDes(planet_des, 100, 50, 50, 50);
 	setDes(big_des, 600, 200, 100, 100);
 	setDes(laser_des1, 0, 0, 0, 0); // LOGIC: set w and h to 0 first,
 	setDes(laser_des2, 0, 0, 0, 0); // so it appears nothing initially,
 	setDes(laser_des3, 0, 0, 0, 0); // when someone pressed spacebar, assign a w and h
-	
 }
 
 void Game::setDes(SDL_Rect &rect, int hori, int vert, int width, int height){
@@ -106,6 +108,12 @@ void Game::update(){ //update things on the screen
 				big_des.y = -100; //reset
 			}
 			
+			//white stars keep moving at background
+			star_des.y += 1;
+			if (star_des.y == 0){
+				star_des.y = -650;
+			}
+			
 			if (motion_detect[MOVE_RIGHT]==true){
 				if (ship_des.x <= 800){ //to limit someone move out of scope
 					ship_des.x += speed;
@@ -169,8 +177,9 @@ void Game::render(){ //painter function
 			   hierarchy structure Whatever 
 			   comes first will render at the bottom */
 			   
-			SDL_RenderClear(renderer);
+			SDL_RenderClear(renderer); //clear the previous screen
 			SDL_RenderCopy(renderer, space, NULL, &space_des); //paint my picture!
+			SDL_RenderCopy(renderer, white_stars, NULL, &star_des); //paint my white stars!
 			SDL_RenderCopy(renderer, planet, NULL, &planet_des);
 			SDL_RenderCopy(renderer, planet_big, NULL, &big_des);
 			if (laser_count >= 1){
@@ -182,10 +191,40 @@ void Game::render(){ //painter function
 				laser_des2.y -= 3;	
 				laser_des3.y -= 3;	
 			}
+			for (int i = 0; i <7; i++){
+				for (int j=0; j<14; j++){
+					if (aliens_coordinate[i][j] == 1){
+						
+						int y_des = 64*i + 100;
+						int x_des = 64*j;
+						setDes(alien_des, x_des, y_des, 64, 64);
+						SDL_RenderCopy(renderer, alien, NULL, &alien_des);
+					}
+					
+				}
+			}
 			SDL_RenderCopy(renderer, spaceship, NULL, &ship_des); //to draw on a new paper //This is to display an image 
 			SDL_RenderPresent(renderer); //start painting!
 		} 
 
+void Game:: spawn_alien(){
+	srand(time(NULL)); //set a seed
+	//spawn 10 aliens with the generated row and column numbers
+	//SDL_RenderCopy(renderer, alien, NULL, &alien_des);
+	while (alien_count < limit){
+		int row = rand() % 8;
+		int column = rand() % 15;
+		if (aliens_coordinate[row][column] == 1){ //it's an alien there 
+			//dont do anything because i already have alien here
+			}
+		else{
+			aliens_coordinate[row][column] = 1;
+			alien_count += 1;
+		}
+		
+	}
+}
+	
 bool Game:: is_it_running(){
 			return is_running;
 		}
@@ -200,3 +239,4 @@ void Game::clean(){ //DrAzeem mentioned before, dynamic memory allocation
 Game::~Game(){
 			cout << "Class Game has reached the end of its lifetime --- destructing..." << endl;
 }
+
