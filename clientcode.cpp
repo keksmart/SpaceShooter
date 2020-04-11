@@ -8,6 +8,7 @@ int main(int argc, char *argv[]){ //command line arguments
 			game.render();
 			game.update();
 			game.handle_event();
+			game.spawn_alien();
 			//run as long as is_running is true
 		}
 		game.clean();
