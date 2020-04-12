@@ -18,9 +18,10 @@ Game::Game(){
 		else{
 			is_running = false; //rare case, if not, set it to false and program will not keep on running
 		}
+		TTF_Init(); //initialize TTF, same thing as SDL_Init
 		loadImages_setInfos(); //load all our images and set their attributes
-		
 	}
+	
 	
 void Game::loadImages_setInfos(){
 	
@@ -41,6 +42,18 @@ void Game::loadImages_setInfos(){
 	setDes(laser_des1, 0, 0, 0, 0); // LOGIC: set w and h to 0 first,
 	setDes(laser_des2, 0, 0, 0, 0); // so it appears nothing initially,
 	setDes(laser_des3, 0, 0, 0, 0); // when someone pressed spacebar, assign a w and h
+	
+	//load texts
+	
+	my_font = TTF_OpenFont("font/OpenSans-Bold.ttf", 100); //load our font
+	my_color = {255, 255, 255}; //set the color of font to white
+	SDL_Surface *text_surface = TTF_RenderText_Solid(my_font, text.c_str(), my_color);
+	//not declaring this in private because we only need to use it locally
+	score_text = SDL_CreateTextureFromSurface(renderer, text_surface);
+	setDes(score_rect, 400, 0, 200, 100 );
+	SDL_FreeSurface(text_surface); //have to free it after using, something like what we did in clean() function
+	
+
 }
 
 void Game::setDes(SDL_Rect &rect, int hori, int vert, int width, int height){
@@ -176,12 +189,14 @@ void Game::render(){ //painter function
 			/* Important Note: Render has a 
 			   hierarchy structure Whatever 
 			   comes first will render at the bottom */
-			   
+			
+			
 			SDL_RenderClear(renderer); //clear the previous screen
 			SDL_RenderCopy(renderer, space, NULL, &space_des); //paint my picture!
 			SDL_RenderCopy(renderer, white_stars, NULL, &star_des); //paint my white stars!
 			SDL_RenderCopy(renderer, planet, NULL, &planet_des);
 			SDL_RenderCopy(renderer, planet_big, NULL, &big_des);
+			SDL_RenderCopy(renderer, score_text, NULL, &score_rect);
 			if (laser_count >= 1){
 				
 				SDL_RenderCopy(renderer, laser1, NULL, &laser_des1);
@@ -191,13 +206,12 @@ void Game::render(){ //painter function
 				laser_des2.y -= 3;	
 				laser_des3.y -= 3;	
 			}
-			for (int i = 0; i <7; i++){
+			for (int i = 0; i <3; i++){ //iterate over the 2D array
 				for (int j=0; j<14; j++){
 					if (aliens_coordinate[i][j] == 1){
-						
-						int y_des = 64*i + 100;
-						int x_des = 64*j;
-						setDes(alien_des, x_des, y_des, 64, 64);
+						int y_des = 62*i + 100;
+						int x_des = 49*j;
+						setDes(alien_des, x_des, y_des, 62, 49);
 						SDL_RenderCopy(renderer, alien, NULL, &alien_des);
 					}
 					
@@ -212,7 +226,7 @@ void Game:: spawn_alien(){
 	//spawn 10 aliens with the generated row and column numbers
 	//SDL_RenderCopy(renderer, alien, NULL, &alien_des);
 	while (alien_count < limit){
-		int row = rand() % 8;
+		int row = rand() % 4;
 		int column = rand() % 15;
 		if (aliens_coordinate[row][column] == 1){ //it's an alien there 
 			//dont do anything because i already have alien here
@@ -229,9 +243,22 @@ bool Game:: is_it_running(){
 			return is_running;
 		}
 void Game::clean(){ //DrAzeem mentioned before, dynamic memory allocation
-			  //To prevent Memory Leak
+			  		//To prevent Memory Leak
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
+	SDL_DestroyTexture(spaceship);
+	SDL_DestroyTexture(space);
+	SDL_DestroyTexture(white_stars);
+	SDL_DestroyTexture(planet);
+	SDL_DestroyTexture(planet_big);
+	SDL_DestroyTexture(laser1);
+	SDL_DestroyTexture(laser2);
+	SDL_DestroyTexture(laser3);
+	SDL_DestroyTexture(sButton);
+	SDL_DestroyTexture(sButtonHover);
+	SDL_DestroyTexture(sButtonClick);
+	SDL_DestroyTexture(alien);
+	SDL_DestroyTexture(score_text);
 	SDL_Quit();
 	
 }
@@ -239,4 +266,3 @@ void Game::clean(){ //DrAzeem mentioned before, dynamic memory allocation
 Game::~Game(){
 			cout << "Class Game has reached the end of its lifetime --- destructing..." << endl;
 }
-
