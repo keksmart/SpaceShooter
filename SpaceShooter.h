@@ -2,9 +2,11 @@
 #include <iostream>
 #include <SDL.h> //SDL library
 #include <SDL_image.h> //SDL library for image
+#include <SDL_ttf.h> //True type font 
 #include <windows.h> //Sleep
 #include <thread> // time
 #include <stdlib.h>  //rand and srand function
+#include <string> //to_string and c_str()
 using namespace std; 
 //header file
 #ifndef SPACESHOOTER
@@ -27,14 +29,10 @@ class Game{
 		int alien_speed = 3;
 		int alien_count = 0;
 		bool clicked = false;
-		bool aliens_coordinate[7][14] = { {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-										  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-										  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-										  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-										  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		bool aliens_coordinate[3][14] = { {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 										  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 										  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-										 };
+										 }; //0 means there's no alien there, 1 means there is
 		
 		SDL_Window *window;
 		SDL_Renderer *renderer;
@@ -46,6 +44,13 @@ class Game{
 		SDL_Rect sb_des;
 		SDL_Texture *alien;
 		SDL_Rect alien_des;
+		
+		int current_score = 0;
+		SDL_Rect score_rect;
+		TTF_Font *my_font; //load our text
+		SDL_Color my_color;//set the color of font to white
+		SDL_Texture *score_text;
+		string text = "Score is " + to_string(current_score);
 		
 	public:                      
 		Game();
