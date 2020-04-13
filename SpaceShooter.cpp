@@ -189,8 +189,6 @@ void Game::render(){ //painter function
 			/* Important Note: Render has a 
 			   hierarchy structure Whatever 
 			   comes first will render at the bottom */
-			
-			
 			SDL_RenderClear(renderer); //clear the previous screen
 			SDL_RenderCopy(renderer, space, NULL, &space_des); //paint my picture!
 			SDL_RenderCopy(renderer, white_stars, NULL, &star_des); //paint my white stars!
@@ -206,17 +204,24 @@ void Game::render(){ //painter function
 				laser_des2.y -= 3;	
 				laser_des3.y -= 3;	
 			}
+			
 			for (int i = 0; i <3; i++){ //iterate over the 2D array
 				for (int j=0; j<14; j++){
-					if (aliens_coordinate[i][j] == 1){
-						int y_des = 62*i + 100;
+					if (aliens_coordinate[i][j] == 1){ //if there's an alien there
+						if (time(NULL) == time_now+2){ //move the alien by 3 pixels every 2 seconds
+							time_now += 2; // increment the time by 2 so the condition would meet every 2 seconds
+							increment_value += 3;
+						}
+					
+						int y_des = 62*i + 100 + increment_value;
 						int x_des = 49*j;
 						setDes(alien_des, x_des, y_des, 62, 49);
 						SDL_RenderCopy(renderer, alien, NULL, &alien_des);
 					}
-					
 				}
 			}
+			
+			
 			SDL_RenderCopy(renderer, spaceship, NULL, &ship_des); //to draw on a new paper //This is to display an image 
 			SDL_RenderPresent(renderer); //start painting!
 		} 
@@ -226,8 +231,8 @@ void Game:: spawn_alien(){
 	//spawn 10 aliens with the generated row and column numbers
 	//SDL_RenderCopy(renderer, alien, NULL, &alien_des);
 	while (alien_count < limit){
-		int row = rand() % 4;
-		int column = rand() % 15;
+		int row = rand() % 3;
+		int column = rand() % 14;
 		if (aliens_coordinate[row][column] == 1){ //it's an alien there 
 			//dont do anything because i already have alien here
 			}
