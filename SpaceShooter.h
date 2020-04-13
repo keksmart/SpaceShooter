@@ -4,7 +4,7 @@
 #include <SDL_image.h> //SDL library for image
 #include <SDL_ttf.h> //True type font 
 #include <windows.h> //Sleep
-#include <thread> // time
+#include <time.h> // time
 #include <stdlib.h>  //rand and srand function
 #include <string> //to_string and c_str()
 using namespace std; 
@@ -51,6 +51,8 @@ class Game{
 		SDL_Color my_color;//set the color of font to white
 		SDL_Texture *score_text;
 		string text = "Score is " + to_string(current_score);
+		int increment_value = 0;
+		int time_now = time(NULL);
 		
 	public:                      
 		Game();
