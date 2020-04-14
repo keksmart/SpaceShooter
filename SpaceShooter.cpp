@@ -130,6 +130,13 @@ void Game::handle_event() {
 			if (event.button.button == SDL_BUTTON_LEFT) {
 				mouse_click = true; //only let left click works
 			}
+			break;
+	
+		case SDL_MOUSEBUTTONUP:
+			if (event.button.button == SDL_BUTTON_LEFT) {
+				mouse_click = false; //only let left click works
+			}
+			break;
 
 		default:
 			break;
