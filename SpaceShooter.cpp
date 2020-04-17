@@ -60,7 +60,6 @@ void Game::loadImages_setInfos() {
 	setDes(space_des, 0, 0, 900, 650);
 	setDes(star_des, 0, -650, 900, 1300);
 	setDes(planet_des, 100, 50, 50, 50);
-	setDes(big_des, 600, 200, 100, 100);
 	setDes(laser_des1, 0, 0, 0, 0); // LOGIC: set w and h to 0 first,
 	setDes(laser_des2, 0, 0, 0, 0); // so it appears nothing initially,
 	setDes(laser_des3, 0, 0, 0, 0); // when someone pressed spacebar, assign a w and h
@@ -74,7 +73,7 @@ void Game::loadImages_setInfos() {
 	SDL_Surface* text_surface = TTF_RenderText_Solid(my_font, text.c_str(), my_color);
 	//not declaring this in private because we only need to use it locally
 	score_text = SDL_CreateTextureFromSurface(renderer, text_surface);
-	setDes(score_rect, 400, 0, 200, 100);
+	setDes(score_rect, 350, 0, 200, 100);
 	SDL_FreeSurface(text_surface); //have to free it after using, something like what we did in clean() function
 
 }
